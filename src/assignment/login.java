@@ -11,7 +11,7 @@ import static javax.swing.JOptionPane.showMessageDialog;
 
 public class login extends javax.swing.JFrame {
     
-     private String username;
+    private String username;
      
     public login() {
         initComponents();
@@ -39,7 +39,7 @@ public class login extends javax.swing.JFrame {
         loginb = new java.awt.Button();
         jPanel1 = new javax.swing.JPanel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(204, 241, 255));
         setResizable(false);
 
@@ -194,7 +194,7 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_registerbActionPerformed
 
     private void loginbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginbActionPerformed
-        String role, email, usernameOrEmail, password, query, passDb=null;
+        String role, email, usernameOrEmail, password, query, passDb=null, Parent1=null, Parent2=null, Child1=null;
         String SUrl, SUser, Spass;
         SUrl = "jdbc:MySQL://localhost:3306/java_user_database";
         SUser = "root";
@@ -210,39 +210,81 @@ public class login extends javax.swing.JFrame {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(SUrl, SUser, Spass);
             
+            usernameOrEmail = Username.getText();
+            password = Password.getText();
+                
+            query = "SELECT * FROM user WHERE (Username = ? OR Email = ?) AND Role = ?";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setString(1, usernameOrEmail);
+            pstmt.setString(2, usernameOrEmail);
+            pstmt.setString(3, role); // Set the role parameter
+            ResultSet rs = pstmt.executeQuery();
+                
+            while(rs.next()){
+                Parent1 = rs.getString("Parent1");
+                Parent2 = rs.getString("Parent2");
+                currentUserType = rs.getString("Role");
+                Child1 = rs.getString("Child1");
+            }
+            
             if("null".equals(role)){
                 JOptionPane.showMessageDialog(new JFrame(), "Please select your role", "Error", JOptionPane.ERROR_MESSAGE);
             }else if("".equals(Username.getText())){
                 JOptionPane.showMessageDialog(new JFrame(), "Username / Email is require", "Error", JOptionPane.ERROR_MESSAGE);
             }else if("".equals(Password.getText())){
                 JOptionPane.showMessageDialog(new JFrame(), "Password is require", "Error", JOptionPane.ERROR_MESSAGE);
+            }else if("Student".equals(role)){
+                if ("".equals(Parent1) || Parent1 == null || !checkUsernameExists(Parent1, "Parent")) {
+                    deleteAccount(usernameOrEmail);
+                    return;
+                }else if (Parent2 != null && !"".equals(Parent2) && !checkUsernameExists(Parent2, "Parent")) {
+                   deleteAccount(usernameOrEmail);
+                   return;
+                 }
+            } else if ("Parent".equals(role)) {
+                  // Check if child1 username exists in the database
+                   if ("".equals(Child1) || Child1 == null || !checkUsernameExists(Child1, "Student")) {
+                        // If child1 is null or empty, show error message and return
+                        deleteAccount(usernameOrEmail);
+                        return;
+                    } else {
+                     // Check if other child usernames exist in the database
+                     for (int i = 2; i <= 10; i++) {
+                        String child = rs.getString("Child" + i);
+                        if (child != null && !"".equals(child) && !checkUsernameExists(child, "student")) {
+                        // If any child username doesn't exist, delete the parent account and return
+                        deleteAccount(username);
+                        return;
+                    }
+                    }
+                 }
+        
             }else{
-                role = String.valueOf(jComboBox1.getSelectedItem());
                 usernameOrEmail = Username.getText();
                 password = Password.getText();
                 
                 query = "SELECT * FROM user WHERE (Username = ? OR Email = ?) AND Role = ?";
-                PreparedStatement pstmt = con.prepareStatement(query);
+                PreparedStatement pst = con.prepareStatement(query);
                 pstmt.setString(1, usernameOrEmail);
                 pstmt.setString(2, usernameOrEmail);
                 pstmt.setString(3, role); // Set the role parameter
-                ResultSet rs = pstmt.executeQuery();
+                ResultSet rst = pst.executeQuery();
                 
-                while(rs.next()){
-                    passDb = rs.getString("password");
+                while(rst.next()){
+                    passDb = rst.getString("password");
                     notFound = 1;
-                    currentUserType = rs.getString("Role");
-                    loggedInUsername = rs.getString("Username");
-                    loggedInEmail = rs.getString("Email");
+                    currentUserType = rst.getString("Role");
+                    loggedInUsername = rst.getString("Username");
+                    loggedInEmail = rst.getString("Email");
                 }
                 if(notFound == 1 && password.equals(passDb)){
                     showMessageDialog(null, "You are successfully login as: "+role);
-                    
+               
                     // back to home page
                     Main main = new Main();
                     main.setVisible(true);
                     // Pass the username to the Main class
-                    main.setLoggedInUser(currentUserType, loggedInUsername, loggedInEmail);
+                    main.setLoggedInUser(currentUserType, loggedInUsername);
                     
                     // Dispose of the login frame
                     dispose();
@@ -254,17 +296,78 @@ public class login extends javax.swing.JFrame {
                 Username.setText("");
                 Password.setText("");
                 jComboBox1.setSelectedItem(null);
-                
+              
             }
         }catch(Exception e){
             System.out.println("Error!"+e.getMessage());
         }
+        
+        
     }//GEN-LAST:event_loginbActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
+    private void deleteAccount(String username) {
+        String SUrl = "jdbc:MySQL://localhost:3306/java_user_database";
+        String SUser = "root";
+        String Spass="host@123";
+    try {
+        // Establish database connection
+        Connection con = DriverManager.getConnection(SUrl, SUser, Spass);
+
+        // Construct the delete query
+        String query = "DELETE FROM user WHERE Username = ?";
+        PreparedStatement pstmt = con.prepareStatement(query);
+        pstmt.setString(1, username);
+
+        // Execute the delete query
+        int rowsAffected = pstmt.executeUpdate();
+
+        // Check if the delete operation was successful
+        if (rowsAffected > 0) {
+            JOptionPane.showMessageDialog(new JFrame(), "Account does not exsits", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Close the prepared statement and database connection
+        pstmt.close();
+        con.close();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(new JFrame(), "Error deleting account: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    
+    //method to check if the username already exists in database
+    private boolean checkUsernameExists(String usernameOrEmail, String roleToCheck) {
+        String SUrl = "jdbc:MySQL://localhost:3306/java_user_database";
+        String SUser = "root";
+        String Spass = "host@123";
+
+        String query = "SELECT Username FROM user WHERE Username = ? OR Email = ?";
+    
+        try (Connection con = DriverManager.getConnection(SUrl, SUser, Spass);
+            PreparedStatement pstmt = con.prepareStatement(query)) {
+        
+            pstmt.setString(1, usernameOrEmail);
+            pstmt.setString(2, usernameOrEmail);
+            
+        try (ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                String userRole = rs.getString("Role");
+                // If the retrieved user's role matches the role to check, return true
+                return userRole.equalsIgnoreCase(roleToCheck);
+            } else {
+                // No user found with the given username or email
+                return false;
+            }
+        }
+    } catch (Exception e) {
+        // Log the error instead of printing directly
+        System.out.println("Error checking username existence: " + e.getMessage());
+        return false; // Return false in case of any exception
+    }
+    }
     /**
      * @param args the command line arguments
      */

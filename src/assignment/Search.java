@@ -43,9 +43,8 @@ public class Search extends javax.swing.JFrame {
         button6 = new java.awt.Button();
         button2 = new java.awt.Button();
         button7 = new java.awt.Button();
-        button8 = new java.awt.Button();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         panel1.setBackground(new java.awt.Color(231, 227, 246));
 
@@ -75,14 +74,6 @@ public class Search extends javax.swing.JFrame {
 
         button7.setLabel("button7");
 
-        button8.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        button8.setLabel("x");
-        button8.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button8ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panel1Layout = new javax.swing.GroupLayout(panel1);
         panel1.setLayout(panel1Layout);
         panel1Layout.setHorizontalGroup(
@@ -97,17 +88,11 @@ public class Search extends javax.swing.JFrame {
                         .addGap(28, 28, 28)
                         .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(81, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(button8, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(32, 32, 32))
         );
         panel1Layout.setVerticalGroup(
             panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panel1Layout.createSequentialGroup()
-                .addGap(32, 32, 32)
-                .addComponent(button8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
+                .addGap(88, 88, 88)
                 .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(58, 58, 58)
                 .addGroup(panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -152,10 +137,6 @@ public class Search extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(new JFrame(), "User does not exists","Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_button1ActionPerformed
-
-    private void button8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button8ActionPerformed
-        dispose();
-    }//GEN-LAST:event_button8ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -223,7 +204,6 @@ public class Search extends javax.swing.JFrame {
     private java.awt.Button button5;
     private java.awt.Button button6;
     private java.awt.Button button7;
-    private java.awt.Button button8;
     private java.awt.Label label1;
     private java.awt.Label label2;
     private javax.swing.JTextField name;

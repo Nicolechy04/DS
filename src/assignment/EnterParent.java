@@ -21,16 +21,54 @@ public class EnterParent extends javax.swing.JFrame {
 
     private JFrame previousFrame;
     private String studentUsername;
+    private String parentacc;
      
     public EnterParent(JFrame previousFrame) {
         initComponents();
         this.setLocationRelativeTo(null);
         this.previousFrame = previousFrame;
+        System.out.println(parentacc);
+        
+        // Add a window listener to the JFrame
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                try {
+                    // Establish database connection
+                    String SUrl = "jdbc:MySQL://localhost:3306/java_user_database";
+                    String SUser = "root";
+                    String Spass = "host@123";
+                    
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    Connection con = DriverManager.getConnection(SUrl, SUser, Spass);
+                    
+                    // Delete both the student and parent accounts from the database
+                    String deleteQuery = "DELETE FROM user WHERE Username = ?";
+                    String deleteParentQuery = "DELETE FROM user WHERE Username = ?";
+                    
+                    PreparedStatement deletePstmt = con.prepareStatement(deleteQuery);
+                    deletePstmt.setString(1, studentUsername);
+                    deletePstmt.executeUpdate();
+                    
+                    PreparedStatement deleteParentPstmt = con.prepareStatement(deleteParentQuery);
+                    deleteParentPstmt.setString(1, parentacc);
+                    deleteParentPstmt.executeUpdate();
+                    
+                    con.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
     
     // Method to set the username
     public void setUser(String username) {
         this.studentUsername = username;
+    }
+    
+    public void setparentacc(String parentacc) {
+        this.parentacc=parentacc;
     }
     
     /**
@@ -48,7 +86,7 @@ public class EnterParent extends javax.swing.JFrame {
         label1 = new java.awt.Label();
         button1 = new java.awt.Button();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
         jLabel1.setText("Please Enter Your Parent's Username:");
@@ -182,8 +220,6 @@ public class EnterParent extends javax.swing.JFrame {
                 System.out.println(e);
             }
         }
-
-
     }//GEN-LAST:event_button1ActionPerformed
 
     //method to check if the username already exists in database
@@ -212,12 +248,6 @@ public class EnterParent extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-    
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new EnterParent().setVisible(true);
-//            }
-//        });
 
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

@@ -22,13 +22,49 @@ public class EnterChildren extends javax.swing.JFrame {
 
     private JFrame previousFrame;
     private String parentUsername; // Add a field to store the student's username
+    private boolean accountCreatedSuccessfully = false; 
     
     public EnterChildren(JFrame previousFrame) {
         initComponents();
         this.setLocationRelativeTo(null);
         jComboBox1.setSelectedItem(null);
         this.previousFrame = previousFrame;
-        //this.parentUsername = parentUsername;
+        
+        // Add a window listener to the JFrame
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (!accountCreatedSuccessfully) {
+                    try {
+                        // Establish database connection
+                        String SUrl = "jdbc:MySQL://localhost:3306/java_user_database";
+                        String SUser = "root";
+                        String Spass = "host@123";
+                        
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        Connection con = DriverManager.getConnection(SUrl, SUser, Spass);
+                        
+                        // Delete the user from the database
+                        String query = "DELETE FROM user WHERE Username = ?";
+                        PreparedStatement pstmt = con.prepareStatement(query);
+                        pstmt.setString(1, parentUsername);
+                        
+                        int rowsAffected = pstmt.executeUpdate();
+                        
+                        if (rowsAffected > 0) {
+                            System.out.println("User account deleted successfully.");
+                        } else {
+                            System.out.println("Failed to delete user account.");
+                        }
+                        
+                        con.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        
     }
     
     // Method to set the username
@@ -61,7 +97,7 @@ public class EnterChildren extends javax.swing.JFrame {
         c9 = new javax.swing.JTextField();
         c10 = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
         jLabel1.setText("Parent-Child Relationship");
@@ -210,45 +246,6 @@ public class EnterChildren extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(new JFrame(), "Please enter usernames", "Error", JOptionPane.ERROR_MESSAGE);
            return; // Exit the method
         }
-        
-//        // Proceed to check if the entered usernames exist in the database
-//        for (int i = 0; i < numberOfChildren; i++) {
-//            JTextField textField = textFields[i];
-//            if (textField.isVisible()) {
-//                // Get the username from the text field
-//                String username = textField.getText().trim();
-//
-//                // Check if the username exists in the database
-//                if (!usernameAlreadyExists(username)) {
-//                    Confirm c = new Confirm();
-//                    c.setVisible(true);
-//                    return; // Exit the method if any username does not exist
-//                }
-//            }
-//        }
-//        
-//        boolean allUsernamesExist = true;
-//        
-//        // Proceed to check if the entered usernames exist in the database
-//        for (int i = 0; i < numberOfChildren; i++) {
-//            JTextField textField = textFields[i];
-//            if (textField.isVisible()) {
-//            // Get the username from the text field
-//            String username = textField.getText().trim();
-//            childNamesList.add(username);
-//            String[] childNamesArray = childNamesList.toArray(new String[0]);
-//            // Save all the valid child names to the database
-//            saveChildNameToDatabase(parentUsername, childNamesArray);
-//
-//            // Check if the username exists in the database
-//                if (!usernameAlreadyExists(username)) {
-//                Confirm c = new Confirm();
-//                c.setVisible(true);
-//                allUsernamesExist = false;
-//                break; // Exit the loop if any username does not exist
-//            }
-//        }
-//    }
 
 boolean allUsernamesExist = true;
 
@@ -281,6 +278,7 @@ boolean allUsernamesExist = true;
             } else {
                 // If previous frame was SignUp, open Login frame
                 showMessageDialog(null, "Account has been created successfully!");
+                accountCreatedSuccessfully = true; // Set flag to true after successful account creation
                 login login = new login();
                 login.setVisible(true);
             }
@@ -412,12 +410,7 @@ private void saveChildNameToDatabase(String parentUsername, String[] childNames)
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-       
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new EnterChildren().setVisible();
-//            }
-//        });
+
     try {
         for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
             if ("Nimbus".equals(info.getName())) {
